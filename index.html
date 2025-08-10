@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Social AI Dashboard – Mockup</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="brand">
+        <div class="logo">AI</div>
+        <div class="brand-text">
+          <strong>Social Dashboard</strong>
+          <span class="beta">Mockup</span>
+        </div>
+      </div>
+
+      <div class="search">
+        <input id="searchInput" type="search" placeholder="Search posts, creators, tags…" />
+      </div>
+
+      <div class="header-actions">
+        <div class="platform-filter" id="platformFilter">
+          <button class="pill active" data-platform="all">All</button>
+          <button class="pill" data-platform="youtube">YouTube</button>
+          <button class="pill" data-platform="instagram">Instagram</button>
+          <button class="pill" data-platform="reddit">Reddit</button>
+        </div>
+        <button id="signInBtn" class="primary">Sign in</button>
+        <div id="userAvatar" class="avatar hidden" title="Account"></div>
+      </div>
+    </header>
+
+    <div class="app-shell">
+      <aside class="sidebar">
+        <section class="card">
+          <h3>Your interests</h3>
+          <div id="tagInput" class="tag-input" data-placeholder="Add a tag and press Enter"></div>
+          <div class="hint">Use tags to tell the AI what you like.</div>
+        </section>
+
+        <section class="card">
+          <h3>Accounts</h3>
+          <div class="connect-list">
+            <div class="connect-row">
+              <div class="platform yt">
+                <span class="dot"></span>
+                <span>YouTube</span>
+              </div>
+              <button class="connect" data-platform="youtube">Connect</button>
+            </div>
+            <div class="connect-row">
+              <div class="platform ig">
+                <span class="dot"></span>
+                <span>Instagram</span>
+              </div>
+              <button class="connect" data-platform="instagram">Connect</button>
+            </div>
+            <div class="connect-row">
+              <div class="platform rd">
+                <span class="dot"></span>
+                <span>Reddit</span>
+              </div>
+              <button class="connect" data-platform="reddit">Connect</button>
+            </div>
+          </div>
+          <div class="hint">Mock connections for now.</div>
+        </section>
+
+        <section class="card">
+          <h3>Filters</h3>
+          <div class="filter-row">
+            <label><input type="checkbox" class="contentFilter" value="video" checked /> Video</label>
+          </div>
+          <div class="filter-row">
+            <label><input type="checkbox" class="contentFilter" value="image" checked /> Image</label>
+          </div>
+          <div class="filter-row">
+            <label><input type="checkbox" class="contentFilter" value="text" checked /> Text</label>
+          </div>
+        </section>
+
+        <section class="card">
+          <h3>Sort by</h3>
+          <select id="sortSelect">
+            <option value="recommended">Recommended</option>
+            <option value="new">Newest</option>
+            <option value="popular">Most popular</option>
+          </select>
+        </section>
+      </aside>
+
+      <main class="content">
+        <div class="toolbar card">
+          <div class="status">
+            <span class="spinner" id="aiSpinner"></span>
+            <span id="aiStatus">AI scanning your channels…</span>
+          </div>
+          <div class="active-tags" id="activeTags"></div>
+          <button id="clearFiltersBtn" class="ghost">Clear filters</button>
+        </div>
+
+        <section id="feed" class="feed-grid"></section>
+      </main>
+    </div>
+
+    <div id="modalBackdrop" class="modal-backdrop hidden"></div>
+    <div id="authModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3 id="authTitle">Welcome</h3>
+          <button id="closeModalBtn" class="icon-btn" aria-label="Close">×</button>
+        </div>
+        <div class="modal-body">
+          <ol class="steps">
+            <li class="active">Sign in</li>
+            <li>Pick interests</li>
+            <li>Connect accounts</li>
+          </ol>
+
+          <div class="step-pane" id="step1">
+            <p>This is a mock sign-in. Click the button to continue.</p>
+            <button id="mockSignIn" class="primary wide">Continue</button>
+          </div>
+
+          <div class="step-pane hidden" id="step2">
+            <label class="label">What content do you enjoy?</label>
+            <div id="modalTagInput" class="tag-input" data-placeholder="e.g. coding, fitness, photography"></div>
+            <div class="preset-tags">
+              <button class="chip" data-tag="javascript">javascript</button>
+              <button class="chip" data-tag="webdev">webdev</button>
+              <button class="chip" data-tag="ai">ai</button>
+              <button class="chip" data-tag="design">design</button>
+              <button class="chip" data-tag="travel">travel</button>
+              <button class="chip" data-tag="photography">photography</button>
+            </div>
+            <div class="step-actions">
+              <button class="ghost" data-prev>Back</button>
+              <button class="primary" data-next>Next</button>
+            </div>
+          </div>
+
+          <div class="step-pane hidden" id="step3">
+            <div class="connect-list">
+              <div class="connect-row">
+                <div class="platform yt"><span class="dot"></span><span>YouTube</span></div>
+                <button class="connect" data-platform="youtube">Connect</button>
+              </div>
+              <div class="connect-row">
+                <div class="platform ig"><span class="dot"></span><span>Instagram</span></div>
+                <button class="connect" data-platform="instagram">Connect</button>
+              </div>
+              <div class="connect-row">
+                <div class="platform rd"><span class="dot"></span><span>Reddit</span></div>
+                <button class="connect" data-platform="reddit">Connect</button>
+              </div>
+            </div>
+            <div class="step-actions">
+              <button class="ghost" data-prev>Back</button>
+              <button id="finishOnboarding" class="primary">Finish</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <template id="cardTemplate">
+      <article class="post-card">
+        <div class="media" data-kind="image">
+          <img alt="" />
+          <div class="duration" data-visible="false">12:34</div>
+        </div>
+        <div class="post-body">
+          <div class="post-meta">
+            <span class="badge"></span>
+            <span class="subtle">•</span>
+            <span class="subtle time"></span>
+          </div>
+          <h4 class="title"></h4>
+          <p class="description"></p>
+          <div class="tags"></div>
+        </div>
+      </article>
+    </template>
+
+    <script src="app.js"></script>
+  </body>
+</html>
