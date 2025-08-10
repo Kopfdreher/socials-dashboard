@@ -42,6 +42,7 @@ body {
   background: linear-gradient(135deg, var(--brand), var(--accent));
   color: #0b0d10; font-weight: 800;
 }
+.logo svg { width: 20px; height: 20px; display: block; }
 .brand-text { display: flex; align-items: baseline; gap: 8px; }
 .brand-text .beta {
   font-size: 12px; color: var(--muted);
@@ -107,8 +108,8 @@ body {
 .platform { display: flex; align-items: center; gap: 8px; }
 .platform .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--muted); display: inline-block; }
 .platform.yt .dot { background: #ff0000; }
-.platform.ig .dot { background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%); }
-.platform.rd .dot { background: #ff4500; }
+.platform.ig .dot { display: none; }
+.platform.rd .dot { display: none; }
 .connect { background: #0f131a; }
 .connect.connected { background: rgba(34,197,94,.15); color: #86efac; border-color: rgba(34,197,94,.35); }
 
@@ -150,6 +151,7 @@ body {
 }
 .post-card .media { position: relative; background: #0f131a; aspect-ratio: 16/9; overflow: hidden; }
 .post-card .media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.post-card .media iframe { display: none; }
 .post-card .media .duration {
   position: absolute; right: 8px; bottom: 8px; font-size: 12px; padding: 4px 6px; border-radius: 6px; background: rgba(0,0,0,.6); color: #e5e7eb; display: none;
 }
@@ -163,6 +165,11 @@ body {
 .post-card .tags .chip { font-size: 12px; padding: 4px 8px; }
 
 .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.6); opacity: 0; pointer-events: none; transition: opacity .2s ease; }
+/* Fullscreen video overlay */
+.video-fullscreen { position: fixed; inset: 0; background: rgba(0,0,0,0.92); display: grid; place-items: center; z-index: 9999; }
+.video-fullscreen .player-wrap { position: relative; width: min(1200px, 96vw); aspect-ratio: 16/9; }
+.video-fullscreen .player-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.video-fullscreen .close-btn { position: absolute; top: 12px; right: 12px; width: 40px; height: 40px; border-radius: 8px; border: 1px solid var(--border); background: var(--panel); color: var(--text); font-size: 22px; line-height: 1; cursor: pointer; }
 .modal-backdrop.active { opacity: 1; pointer-events: auto; }
 .modal { position: fixed; inset: 0; display: grid; place-items: center; opacity: 0; pointer-events: none; transition: opacity .2s ease; }
 .modal.active { opacity: 1; pointer-events: auto; }

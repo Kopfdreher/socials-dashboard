@@ -3,13 +3,25 @@
 
   const state = {
     signedIn: false,
-    connected: { youtube: false, instagram: false, reddit: false },
+    connected: { youtube: false },
     tags: new Set(),
-    platform: "all",
-    contentKinds: new Set(["video", "image", "text"]),
+    platform: "youtube",
+    contentKinds: new Set(["video"]), // retained for code simplicity; UI filters removed
     sort: "recommended",
     search: ""
   };
+
+  const ALLOWED_TAGS = new Set([
+    "development",
+    "design",
+    "ux-ui",
+    "wisdom",
+    "growth",
+    "podcast",
+    "finance",
+    "learn",
+    "focus"
+  ]);
 
   const $ = (sel, root = document) => root.querySelector(sel);
   const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
@@ -37,126 +49,69 @@
     finishOnboarding: $("#finishOnboarding")
   };
 
+  const VIDEO_URLS = [
+    "https://www.youtube.com/watch?v=j6Ule7GXaRs",
+    "https://www.youtube.com/watch?v=1NTKwpAVcHg",
+    "https://www.youtube.com/watch?v=wIuVvCuiJhU",
+    "https://www.youtube.com/watch?v=TBIjgBVFjVI",
+    "https://www.youtube.com/watch?v=A89FMtIkWKc",
+    "https://www.youtube.com/watch?v=cKTU4fcttZ0",
+    "https://www.youtube.com/watch?v=Q-zuTZuYeCg",
+    "https://www.youtube.com/watch?v=VleyqM4ubng",
+    "https://www.youtube.com/watch?v=cUO4K_66z5w",
+    "https://www.youtube.com/watch?v=4W64WGFy-Js",
+    "https://www.youtube.com/watch?v=gZ5K4iReUnE",
+    "https://www.youtube.com/watch?v=yvuPkfGpsYM",
+    "https://www.youtube.com/watch?v=oGSHKXEKT2Q",
+    "https://www.youtube.com/watch?v=Z4Q9P_EhiY0",
+    "https://www.youtube.com/watch?v=WzrALzUnZ0g",
+    "https://www.youtube.com/watch?v=l86xggdQcKQ"
+  ];
+
   const mockPosts = generateMockPosts();
+  hydrateVideoMetadata(mockPosts).catch(() => {/* ignore */});
 
   function generateMockPosts() {
-    const sample = [
-      {
-        id: "yt1",
+    const posts = VIDEO_URLS.map((url, idx) => {
+      const vid = extractVideoId(url);
+      return {
+        id: `yt-${idx}`,
         platform: "youtube",
         kind: "video",
-        title: "Understanding Async/Await in JavaScript",
-        description: "A friendly walkthrough with examples and tips.",
-        time: "2h",
-        tags: ["javascript", "webdev", "tutorial"],
-        image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1200&auto=format&fit=crop"
-      },
-      {
-        id: "ig1",
-        platform: "instagram",
-        kind: "image",
-        title: "Sunset street photography",
-        description: "Golden hour in Lisbon with a 35mm prime.",
-        time: "4h",
-        tags: ["photography", "street", "travel"],
-        image: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?q=80&w=1200&auto=format&fit=crop"
-      },
-      {
-        id: "rd1",
-        platform: "reddit",
-        kind: "text",
-        title: "What are your 2025 web dev stack picks?",
-        description: "Thread discussing frameworks, runtimes, and tools.",
-        time: "6h",
-        tags: ["webdev", "discussion", "frameworks"],
-        image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=1200&auto=format&fit=crop"
-      },
-      {
-        id: "yt2",
-        platform: "youtube",
-        kind: "video",
-        title: "10 design tips for better dashboards",
-        description: "Balance, contrast, typography, and layout tricks.",
-        time: "1d",
-        tags: ["design", "ui", "ux"],
-        image: "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?q=80&w=1200&auto=format&fit=crop"
-      },
-      {
-        id: "ig2",
-        platform: "instagram",
-        kind: "image",
-        title: "Minimal Workspace Setup",
-        description: "Clean desk, natural light, focus mode.",
-        time: "1d",
-        tags: ["workspace", "minimal", "productivity"],
-        image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=1200&auto=format&fit=crop"
-      },
-      {
-        id: "rd2",
-        platform: "reddit",
-        kind: "text",
-        title: "ELI5: Vector embeddings",
-        description: "A simple explanation of what embeddings are and why they matter.",
-        time: "2d",
-        tags: ["ai", "ml", "explainlikeimfive"],
-        image: "https://images.unsplash.com/photo-1555099962-4199c345e5dd?q=80&w=1200&auto=format&fit=crop"
-      }
-    ];
-
-    // add some variety
-    const extra = [];
-    const platforms = ["youtube", "instagram", "reddit"];
-    const kinds = ["video", "image", "text"];
-    const tagPool = ["javascript", "webdev", "react", "ai", "design", "travel", "photography", "fitness", "startup", "news"];
-
-    for (let i = 0; i < 18; i++) {
-      const platform = platforms[i % platforms.length];
-      const kind = kinds[i % kinds.length];
-      const titleBase = {
-        youtube: "Creator Spotlight",
-        instagram: "Daily Inspiration",
-        reddit: "Community Thread"
-      }[platform];
-      extra.push({
-        id: `${platform}-${i}`,
-        platform,
-        kind,
-        title: `${titleBase} #${i + 1}`,
-        description: "Curated by AI based on your interests.",
-        time: `${(i % 5) + 1}h`,
-        tags: shuffle(tagPool).slice(0, 3),
-        image: `https://picsum.photos/seed/${platform}-${i}/800/450`
-      });
-    }
-
-    return [...sample, ...extra];
+        videoId: vid,
+        url,
+        title: "Loading…",
+        description: "",
+        time: "",
+        tags: [],
+        image: `https://i.ytimg.com/vi/${vid}/hqdefault.jpg`
+      };
+    });
+    return posts;
   }
 
   function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5); }
 
   function render() {
-    const posts = applyFiltersAndSorting(mockPosts);
-    renderActiveTags();
-    renderFeed(posts);
-    elements.aiSpinner.style.display = "none";
-    elements.aiStatus.textContent = `${posts.length} posts • filtered by AI`;
+    let posts = [];
+    try {
+      posts = applyFiltersAndSorting(mockPosts);
+      renderActiveTags();
+      renderFeed(posts);
+    } catch (err) {
+      console.error("Render error:", err);
+    } finally {
+      if (elements.aiSpinner) elements.aiSpinner.style.display = "none";
+      if (elements.aiStatus) elements.aiStatus.textContent = `${posts.length} posts • filtered by AI`;
+    }
   }
 
   function applyFiltersAndSorting(items) {
-    let results = items.filter(p => state.platform === "all" || p.platform === state.platform);
-    results = results.filter(p => state.contentKinds.has(p.kind));
+    // Only filter by tags; no platform, kind, or text search filtering
+    let results = items.slice();
 
     if (state.tags.size > 0) {
       results = results.filter(p => p.tags.some(t => state.tags.has(t.toLowerCase())));
-    }
-
-    if (state.search.trim()) {
-      const q = state.search.toLowerCase();
-      results = results.filter(p =>
-        p.title.toLowerCase().includes(q) ||
-        p.description.toLowerCase().includes(q) ||
-        p.tags.some(t => t.toLowerCase().includes(q))
-      );
     }
 
     if (state.sort === "new") results = results.reverse();
@@ -174,22 +129,24 @@
       const article = node.querySelector(".post-card");
       const media = node.querySelector(".media");
       const img = node.querySelector("img");
-      const duration = node.querySelector(".duration");
-      const badge = node.querySelector(".badge");
       const time = node.querySelector(".time");
       const title = node.querySelector(".title");
       const description = node.querySelector(".description");
       const tags = node.querySelector(".tags");
 
-      media.dataset.kind = post.kind === "video" ? "video" : "image";
-      img.src = post.image;
-      img.alt = post.title;
-      duration.style.display = post.kind === "video" ? "inline-block" : "none";
+      media.dataset.kind = "video";
+      // Show only thumbnail in the grid (no overlays)
+      if (img) {
+        img.src = post.image || img.src;
+        img.alt = post.title || "Video thumbnail";
+      }
+      media.style.cursor = "pointer";
+      media.addEventListener("click", () => openVideoFullscreen(post));
+      // no duration badge in template anymore
 
-      badge.textContent = capitalize(post.platform);
-      time.textContent = post.time;
-      title.textContent = post.title;
-      description.textContent = post.description;
+      time.textContent = post.time || "";
+      title.textContent = post.title || "";
+      description.textContent = post.description || "";
 
       post.tags.forEach(t => {
         const chip = document.createElement("button");
@@ -219,7 +176,7 @@
 
   function addTag(raw) {
     const t = String(raw || "").trim().toLowerCase();
-    if (!t) return;
+    if (!t || !ALLOWED_TAGS.has(t)) return;
     state.tags.add(t);
     syncTagInputs();
     render();
@@ -278,6 +235,7 @@
   }
 
   function bindPlatformFilter() {
+    if (!elements.platformFilter) return;
     $$(".pill", elements.platformFilter).forEach(btn => {
       btn.addEventListener("click", () => {
         $$(".pill", elements.platformFilter).forEach(b => b.classList.remove("active"));
@@ -288,15 +246,7 @@
     });
   }
 
-  function bindContentFilters() {
-    elements.contentFilters.forEach(cb => {
-      cb.addEventListener("change", () => {
-        if (cb.checked) state.contentKinds.add(cb.value);
-        else state.contentKinds.delete(cb.value);
-        render();
-      });
-    });
-  }
+  function bindContentFilters() { /* no-op: filters removed */ }
 
   function bindSortAndSearch() {
     elements.sortSelect.addEventListener("change", () => {
@@ -309,7 +259,7 @@
     });
     elements.clearFiltersBtn.addEventListener("click", () => {
       state.tags.clear();
-      state.search = "";
+      state.search = ""; // search no longer filters results
       elements.searchInput.value = "";
       syncTagInputs();
       render();
@@ -393,15 +343,143 @@
   }
   function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
 
-  // bootstrap
-  bindPlatformFilter();
-  bindContentFilters();
-  bindSortAndSearch();
-  bindPresetChips();
-  bindConnectButtons();
-  bindAuthFlow();
-  syncTagInputs();
+  function extractVideoId(url) {
+    try {
+      const u = new URL(url);
+      if (u.hostname.includes("youtu.be")) return u.pathname.slice(1);
+      return u.searchParams.get("v") || "";
+    } catch { return ""; }
+  }
 
-  // initial render with tiny delay to show spinner
-  setTimeout(render, 400);
+  function shortenToWords(text, count) {
+    const words = String(text || "").trim().split(/\s+/);
+    return words.slice(0, count).join(" ");
+  }
+
+  function deriveTagsFromTitle(title) {
+    const t = String(title || "").toLowerCase();
+    const chosen = [];
+    const tryAdd = (tag) => {
+      if (ALLOWED_TAGS.has(tag) && !chosen.includes(tag)) chosen.push(tag);
+    };
+    if (/(dev|code|program|javascript|typescript|react|next|api|engineer)/.test(t)) tryAdd("development");
+    if (/(design|ui|visual|layout|typography)/.test(t)) tryAdd("design");
+    if (/(ux|ui|accessibility|usability)/.test(t)) tryAdd("ux-ui");
+    if (/(mindset|advice|wisdom|philosophy|insight|lessons)/.test(t)) tryAdd("wisdom");
+    if (/(growth|scale|startup|marketing|strategy)/.test(t)) tryAdd("growth");
+    if (/(podcast|episode|talk|interview)/.test(t)) tryAdd("podcast");
+    if (/(finance|money|invest|budget|market|stocks|crypto)/.test(t)) tryAdd("finance");
+    if (/(learn|tutorial|guide|course|how to|tips|tricks)/.test(t)) tryAdd("learn");
+    if (/(focus|productivity|deep work|concentration)/.test(t)) tryAdd("focus");
+    if (chosen.length === 0) tryAdd("focus");
+    while (chosen.length < 3) {
+      // pad with reasonable defaults but keep within allowed set
+      for (const pad of ["learn", "development", "design", "ux-ui", "growth", "wisdom", "podcast", "finance", "focus"]) {
+        if (chosen.length >= 3) break;
+        tryAdd(pad);
+      }
+      break;
+    }
+    return chosen.slice(0, 3);
+  }
+
+  async function hydrateVideoMetadata(posts) {
+    const apiKey = window.YT_API_KEY || localStorage.getItem("YT_API_KEY") || "";
+    if (apiKey) {
+      // Fetch in batches (max 50 IDs per request)
+      const ids = posts.map(p => p.videoId).filter(Boolean);
+      function* chunk(arr, size) {
+        for (let i = 0; i < arr.length; i += size) {
+          yield arr.slice(i, i + size);
+        }
+      }
+      for (const group of chunk(ids, 45)) {
+        const resp = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${group.join(',')}&key=${apiKey}`);
+        const data = await resp.json();
+        const map = new Map();
+        (data.items || []).forEach(item => map.set(item.id, item.snippet));
+        posts.forEach(p => {
+          const sn = map.get(p.videoId);
+          if (!sn) return;
+          p.title = sn.title || p.title;
+          p.description = shortenToWords(sn.description || "", 10);
+          p.tags = deriveTagsFromTitle(p.title);
+          if (sn.thumbnails && sn.thumbnails.high) p.image = sn.thumbnails.high.url;
+        });
+      }
+      render();
+      return;
+    }
+
+    // Fallback to oEmbed for titles if no API key
+    await Promise.all(posts.map(async (p) => {
+      try {
+        const resp = await fetch(`https://www.youtube.com/oembed?url=${encodeURIComponent(p.url)}&format=json`);
+        if (!resp.ok) return;
+        const data = await resp.json();
+        p.title = data.title || p.title;
+        p.tags = deriveTagsFromTitle(p.title);
+      } catch { /* ignore */ }
+    }));
+    render();
+  }
+
+  function openVideoFullscreen(post) {
+    const overlay = document.createElement("div");
+    overlay.className = "video-fullscreen";
+    const wrap = document.createElement("div");
+    wrap.className = "player-wrap";
+    const iframe = document.createElement("iframe");
+    iframe.src = `https://www.youtube-nocookie.com/embed/${post.videoId}?autoplay=1&playsinline=1&rel=0&modestbranding=1`;
+    iframe.title = post.title || "YouTube video";
+    iframe.frameBorder = "0";
+    iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+    iframe.allowFullscreen = true;
+    wrap.appendChild(iframe);
+
+    const closeBtn = document.createElement("button");
+    closeBtn.className = "close-btn";
+    closeBtn.setAttribute("aria-label", "Close");
+    closeBtn.textContent = "×";
+    closeBtn.addEventListener("click", close);
+
+    overlay.appendChild(wrap);
+    overlay.appendChild(closeBtn);
+    document.body.appendChild(overlay);
+
+    function onKey(e) { if (e.key === "Escape") close(); }
+    document.addEventListener("keydown", onKey);
+    overlay.addEventListener("click", (e) => { if (e.target === overlay) close(); });
+
+    // Try to enter Fullscreen
+    const req = overlay.requestFullscreen || overlay.webkitRequestFullscreen || overlay.msRequestFullscreen;
+    if (req) { try { req.call(overlay); } catch {} }
+
+    function close() {
+      document.removeEventListener("keydown", onKey);
+      const exit = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
+      if (document.fullscreenElement && exit) { try { exit.call(document); } catch {} }
+      overlay.remove();
+    }
+  }
+
+  // bootstrap (robust against missing elements)
+  try { bindPlatformFilter(); } catch {}
+  try { bindContentFilters(); } catch {}
+  try { bindSortAndSearch(); } catch {}
+  try { bindPresetChips(); } catch {}
+  try { bindConnectButtons(); } catch {}
+  try { bindAuthFlow(); } catch {}
+  try { syncTagInputs(); } catch {}
+
+  function safeInitialRender() {
+    try { render(); }
+    catch {
+      if (elements.aiSpinner) elements.aiSpinner.style.display = "none";
+      if (elements.aiStatus) elements.aiStatus.textContent = "Ready";
+    }
+  }
+
+  // initial render
+  safeInitialRender();
 })();

@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Social AI Dashboard – Mockup</title>
+    <title>ZenView – YouTube</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -12,9 +12,14 @@
   <body>
     <header class="app-header">
       <div class="brand">
-        <div class="logo">AI</div>
+        <div class="logo" aria-label="ZenView" title="ZenView">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="20" height="20">
+            <path d="M2 12s4.5-7 10-7 10 7 10 7-4.5 7-10 7-10-7-10-7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="12" cy="12" r="3" fill="currentColor"/>
+          </svg>
+        </div>
         <div class="brand-text">
-          <strong>Social Dashboard</strong>
+          <strong>ZenView</strong>
           <span class="beta">Mockup</span>
         </div>
       </div>
@@ -24,12 +29,6 @@
       </div>
 
       <div class="header-actions">
-        <div class="platform-filter" id="platformFilter">
-          <button class="pill active" data-platform="all">All</button>
-          <button class="pill" data-platform="youtube">YouTube</button>
-          <button class="pill" data-platform="instagram">Instagram</button>
-          <button class="pill" data-platform="reddit">Reddit</button>
-        </div>
         <button id="signInBtn" class="primary">Sign in</button>
         <div id="userAvatar" class="avatar hidden" title="Account"></div>
       </div>
@@ -53,36 +52,11 @@
               </div>
               <button class="connect" data-platform="youtube">Connect</button>
             </div>
-            <div class="connect-row">
-              <div class="platform ig">
-                <span class="dot"></span>
-                <span>Instagram</span>
-              </div>
-              <button class="connect" data-platform="instagram">Connect</button>
-            </div>
-            <div class="connect-row">
-              <div class="platform rd">
-                <span class="dot"></span>
-                <span>Reddit</span>
-              </div>
-              <button class="connect" data-platform="reddit">Connect</button>
-            </div>
           </div>
           <div class="hint">Mock connections for now.</div>
         </section>
 
-        <section class="card">
-          <h3>Filters</h3>
-          <div class="filter-row">
-            <label><input type="checkbox" class="contentFilter" value="video" checked /> Video</label>
-          </div>
-          <div class="filter-row">
-            <label><input type="checkbox" class="contentFilter" value="image" checked /> Image</label>
-          </div>
-          <div class="filter-row">
-            <label><input type="checkbox" class="contentFilter" value="text" checked /> Text</label>
-          </div>
-        </section>
+        
 
         <section class="card">
           <h3>Sort by</h3>
@@ -101,7 +75,7 @@
             <span id="aiStatus">AI scanning your channels…</span>
           </div>
           <div class="active-tags" id="activeTags"></div>
-          <button id="clearFiltersBtn" class="ghost">Clear filters</button>
+          <button id="clearFiltersBtn" class="ghost">Clear tags</button>
         </div>
 
         <section id="feed" class="feed-grid"></section>
@@ -145,20 +119,12 @@
           </div>
 
           <div class="step-pane hidden" id="step3">
-            <div class="connect-list">
-              <div class="connect-row">
-                <div class="platform yt"><span class="dot"></span><span>YouTube</span></div>
-                <button class="connect" data-platform="youtube">Connect</button>
-              </div>
-              <div class="connect-row">
-                <div class="platform ig"><span class="dot"></span><span>Instagram</span></div>
-                <button class="connect" data-platform="instagram">Connect</button>
-              </div>
-              <div class="connect-row">
-                <div class="platform rd"><span class="dot"></span><span>Reddit</span></div>
-                <button class="connect" data-platform="reddit">Connect</button>
-              </div>
-            </div>
+              <div class="connect-list">
+               <div class="connect-row">
+                 <div class="platform yt"><span class="dot"></span><span>YouTube</span></div>
+                 <button class="connect" data-platform="youtube">Connect</button>
+               </div>
+             </div>
             <div class="step-actions">
               <button class="ghost" data-prev>Back</button>
               <button id="finishOnboarding" class="primary">Finish</button>
@@ -172,12 +138,9 @@
       <article class="post-card">
         <div class="media" data-kind="image">
           <img alt="" />
-          <div class="duration" data-visible="false">12:34</div>
         </div>
         <div class="post-body">
           <div class="post-meta">
-            <span class="badge"></span>
-            <span class="subtle">•</span>
             <span class="subtle time"></span>
           </div>
           <h4 class="title"></h4>
