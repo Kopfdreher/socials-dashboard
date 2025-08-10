@@ -96,8 +96,8 @@
     let posts = [];
     try {
       posts = applyFiltersAndSorting(mockPosts);
-      renderActiveTags();
-      renderFeed(posts);
+    renderActiveTags();
+    renderFeed(posts);
     } catch (err) {
       console.error("Render error:", err);
     } finally {
@@ -451,14 +451,8 @@
     document.addEventListener("keydown", onKey);
     overlay.addEventListener("click", (e) => { if (e.target === overlay) close(); });
 
-    // Try to enter Fullscreen
-    const req = overlay.requestFullscreen || overlay.webkitRequestFullscreen || overlay.msRequestFullscreen;
-    if (req) { try { req.call(overlay); } catch {} }
-
     function close() {
       document.removeEventListener("keydown", onKey);
-      const exit = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
-      if (document.fullscreenElement && exit) { try { exit.call(document); } catch {} }
       overlay.remove();
     }
   }
